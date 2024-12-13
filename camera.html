@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="/static/camera.css" />
+    <title>촬영</title>
+    <script src="https://unpkg.com/feather-icons"></script>
+  </head>
+  <body>
+    <img
+      id="overlay-image"
+      src="/static/images/front_body.png"
+      alt="Overlay Image"
+    />
+    <div id="video-container">
+      <video id="video" autoplay></video>
+
+      <!-- 반투명 검정 오버레이 -->
+      <div id="description-overlay">
+        <div class="loader"></div>
+        <h3 class="loading-text">신체 부위를 측정하는 중입니다.</h3>
+      </div>
+
+      <div class="description">
+        <h3 class="overlay">화면에 보이는 바디라인에 맞춰</h3>
+        <h3 class="overlay highlight">정면을 보시고 촬영 버튼을 눌러주세요.</h3>
+      </div>
+      <div class="button-wrapper">
+        <div class="button-background"></div>
+        <button class="custom-btn btn-4" onclick="startTimer()">
+          <i data-feather="camera"></i>
+        </button>
+      </div>
+    </div>
+
+    <div id="timer" class="timer"></div>
+
+    <script>
+      // Function to start the camera stream
+      async function startCamera() {
+        try {
+          const stream = await navigator.mediaDevices.getUserMedia({
+            video: true,
+          });
+          const videoElement = document.getElementById("video");
+          videoElement.srcObject = stream;
+        } catch (error) {
+          console.error("Error accessing camera: ", error);
+        }
+      }
+
+      // Initialize the camera on page load
+      startCamera();
+
+      function startTimer() {
+        const timerElement = document.getElementById("timer");
+        let countdown = 5;
+
+        // Display the timer
+        timerElement.style.display = "block";
+        timerElement.textContent = countdown;
+
+        // Start the countdown
+        const interval = setInterval(() => {
+          countdown--;
+          if (countdown > 0) {
+            timerElement.textContent = countdown;
+          } else {
+            clearInterval(interval);
+            timerElement.style.display = "none"; // Hide timer
+            capturePhoto(); // Capture photo after countdown
+          }
+        }, 1000);
+      }
+
+      async function capturePhoto() {
+        const video = document.getElementById("video");
+        const overlayImage = document.getElementById("overlay-image");
+
+        // 캔버스를 생성하여 비디오 화면 캡처
+        const canvas = document.createElement("canvas");
+        canvas.width = video.videoWidth; // 비디오의 원본 해상도
+        canvas.height = video.videoHeight;
+
+        const context = canvas.getContext("2d");
+        context.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+        // overlay-image의 크기와 위치를 기준으로 캡처 영역 설정
+        const videoRect = video.getBoundingClientRect(); // 비디오의 화면 위치 정보
+        const overlayRect = overlayImage.getBoundingClientRect(); // 오버레이의 화면 위치 정보
+
+        // 오버레이의 비율을 기준으로 크롭 영역 계산
+        const cropX =
+          ((overlayRect.left - videoRect.left) / videoRect.width) *
+          canvas.width;
+        const cropY =
+          ((overlayRect.top - videoRect.top) / videoRect.height) *
+          canvas.height;
+        const cropWidth = (overlayRect.width / videoRect.width) * canvas.width;
+        const cropHeight =
+          (overlayRect.height / videoRect.height) * canvas.height;
+
+        // 크롭된 영역을 다시 캔버스에 그리기
+        const croppedCanvas = document.createElement("canvas");
+        croppedCanvas.width = cropWidth;
+        croppedCanvas.height = cropHeight;
+
+        const croppedContext = croppedCanvas.getContext("2d");
+        croppedContext.drawImage(
+          canvas,
+          cropX,
+          cropY,
+          cropWidth,
+          cropHeight,
+          0,
+          0,
+          cropWidth,
+          cropHeight
+        );
+
+        // 크롭된 이미지를 Blob으로 변환
+        croppedCanvas.toBlob(async (blob) => {
+          if (blob) {
+            const formData = new FormData();
+            formData.append("photo", blob, "front.jpg");
+
+            // 오버레이 활성화
+            const descriptionOverlay = document.getElementById(
+              "description-overlay"
+            );
+            if (descriptionOverlay) {
+              descriptionOverlay.classList.add("active"); // active 클래스 추가
+            }
+
+            try {
+              // 사진 업로드
+              const uploadResponse = await fetch("/upload-photo", {
+                method: "POST",
+                body: formData,
+              });
+
+              if (uploadResponse.ok) {
+                const uploadResult = await uploadResponse.json();
+                console.log("Photo uploaded:", uploadResult);
+
+                // 업로드 성공 후 예측 요청
+                const processResponse = await fetch("/process-saved-photo", {
+                  method: "POST",
+                });
+
+                if (processResponse.ok) {
+                  const processResult = await processResponse.json();
+                  console.log("Prediction result:", processResult);
+                  window.location.href = "/";
+                } else {
+                  alert("Failed to process photo.");
+                }
+              } else {
+                alert("Failed to upload photo.");
+              }
+            } catch (error) {
+              console.error("Error processing photo:", error);
+              alert("Error processing photo.");
+            } finally {
+              // 오버레이 비활성화
+              if (descriptionOverlay) {
+                descriptionOverlay.classList.remove("active"); // active 클래스 제거
+              }
+            }
+          }
+        }, "image/jpeg");
+      }
+
+      // feather-icons 초기화
+      feather.replace();
+    </script>
+  </body>
+</html>

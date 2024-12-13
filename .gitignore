@@ -1,0 +1,11 @@
+.env
+
+/photos/
+
+
+debug.log
+
+*.pyc
+__pycache__/
+venv/
+

@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Video Capture</title>
+    <style>
+      video {
+        width: 390px;
+        height: 844px;
+        object-fit: cover;
+        border: 2px solid black;
+      }
+      canvas {
+        display: none; /* 캡처 시 사용되는 캔버스 */
+      }
+    </style>
+  </head>
+  <body>
+    <div>
+      <video id="video" autoplay></video>
+      <button id="capture">Capture</button>
+    </div>
+    <canvas id="canvas" width="390" height="844"></canvas>
+    <script src="script.js"></script>
+  </body>
+  <script>
+    // 비디오 엘리먼트와 캔버스 엘리먼트를 가져옵니다.
+    const video = document.getElementById("video");
+    const canvas = document.getElementById("canvas");
+    const captureButton = document.getElementById("capture");
+    const context = canvas.getContext("2d");
+
+    // 사용자 카메라 접근 권한 요청 및 스트림 시작
+    navigator.mediaDevices
+      .getUserMedia({ video: { width: 390, height: 844 } })
+      .then((stream) => {
+        video.srcObject = stream;
+      })
+      .catch((error) => {
+        console.error("Error accessing camera: ", error);
+      });
+
+    // 캡처 버튼 클릭 이벤트
+    captureButton.addEventListener("click", () => {
+      // 캔버스에 현재 비디오 프레임을 그림
+      context.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+      // 캔버스 내용을 이미지로 변환
+      const image = canvas.toDataURL("image/png");
+
+      // 이미지 다운로드
+      const link = document.createElement("a");
+      link.href = image;
+      link.download = "capture.png";
+      link.click();
+    });
+  </script>
+</html>

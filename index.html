@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="/static/style.css" />
+    <title>메인</title>
+    <script src="https://unpkg.com/feather-icons"></script>
+  </head>
+  <body>
+    <div class="container">
+      <!-- Header -->
+      <header class="header">
+        <h3></h3>
+      </header>
+
+      <!-- User Info Section -->
+      <main>
+        <div class="user-info-container">
+          <div class="user-info">
+            <h2>OOO님</h2>
+            <p style="margin: 0; font-size: 12px">
+              반갑습니다. <br />
+              신체 부위를 측정해볼까요?
+            </p>
+            <button class="unit-button">단위(cm)</button>
+            <div class="measurements">
+              <div class="measurement-circle">
+                <p style="padding-left: 5px">키</p>
+                <span class="height_value" style="padding-left: 5px">-</span>
+              </div>
+              <div class="measurement-circle">
+                <p style="padding-left: 5px">몸무게</p>
+                <span class="weight_value" style="padding-left: 5px">-</span>
+              </div>
+            </div>
+
+            <h4 style="font-weight: 400">
+              전신 사진 1장으로 <br />
+              신체 둘레 알아보기
+            </h4>
+            <button class="custom-btn btn-4">
+              <a href="/input">간편 측정 바로가기</a>
+            </button>
+          </div>
+          <div class="woman-img">
+            <img
+              src="/static/images/woman_circle.png"
+              alt="사람 이미지"
+              class="user-image"
+            />
+          </div>
+        </div>
+
+        <!-- Body Measurements Section -->
+        <section class="body-measurements">
+          <div class="measurement">
+            <img
+              src="/static/images/chest.png"
+              alt="가슴둘레"
+              width="50"
+              height="50"
+            />
+            <p class="measure_value">가슴둘레</p>
+            <p class="values chest">NUM</p>
+          </div>
+          <div class="measurement">
+            <img
+              src="/static/images/waist.png"
+              alt="허리둘레"
+              width="50"
+              height="50"
+            />
+            <p class="measure_value">허리둘레</p>
+            <p class="values waist">NUM</p>
+          </div>
+          <div class="measurement">
+            <img
+              src="/static/images/hips.png"
+              alt="엉덩이둘레"
+              width="50"
+              height="50"
+            />
+            <p class="measure_value">엉덩이둘레</p>
+            <p class="values hip">NUM</p>
+          </div>
+          <div class="measurement">
+            <img
+              src="/static/images/thighs.png"
+              alt="허벅지둘레"
+              width="50"
+              height="50"
+            />
+            <p class="measure_value">허벅지둘레</p>
+            <p class="values thigh">NUM</p>
+          </div>
+        </section>
+      </main>
+
+      <!-- Bottom Navigation Bar -->
+      <nav>
+        <hr class="nav-divider" />
+        <a class="nav-item active" href="#" class="active">
+          <i data-feather="home"></i><span>홈</span>
+        </a>
+
+        <a class="nav-item" href="#">
+          <i data-feather="camera"></i><span>Activity</span>
+        </a>
+
+        <a class="nav-item" href="#">
+          <i data-feather="user"></i><span>Messages</span>
+        </a>
+      </nav>
+    </div>
+    <!-- Closing the container div -->
+
+    <script>
+      document.querySelector(".nav-item").focus();
+      feather.replace();
+
+      document.addEventListener("DOMContentLoaded", async function () {
+        console.log("DOM fully loaded and parsed");
+        await loadUserData();
+      });
+
+      async function loadUserData() {
+        try {
+          const response = await fetch("/get-user-data");
+          if (response.ok) {
+            const data = await response.json();
+            console.log("Fetched data:", data);
+
+            // 키와 몸무게 업데이트
+            document.querySelector(".height_value").textContent =
+              data.height.toFixed(1);
+            document.querySelector(".weight_value").textContent =
+              data.weight.toFixed(1);
+
+            // 신체 사이즈 업데이트
+            document.querySelector(".values.chest").textContent =
+              data.chest.toFixed(1);
+            document.querySelector(".values.waist").textContent =
+              data.waist.toFixed(1);
+            document.querySelector(".values.hip").textContent =
+              data.hip.toFixed(1);
+            document.querySelector(".values.thigh").textContent =
+              data.thigh.toFixed(1);
+          } else {
+            console.error("Failed to fetch user data");
+          }
+        } catch (error) {
+          console.error("Error loading user data:", error);
+        }
+      }
+    </script>
+  </body>
+</html>
