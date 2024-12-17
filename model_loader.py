@@ -23,7 +23,8 @@ config = {
     'type_attention': "regression", # attention 종류 (regression, categorical, none)
     'has_filename': False,
 }
-# 모델 초기화 및 가중치 로드
+
+
 def load_model():
     model = get_model(config)
     model.load_weights(r'C:\Users\kangsei\Desktop\학교 수업\1학년 2학기\융프\Final_Application\blazepose_attention_seg_10_3.1590578383293706.h5')  # 모델 가중치 경로

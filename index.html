@@ -14,7 +14,7 @@
         <h3></h3>
       </header>
 
-      <!-- User Info Section -->
+      <!-- User Info-->
       <main>
         <div class="user-info-container">
           <div class="user-info">
@@ -52,7 +52,7 @@
           </div>
         </div>
 
-        <!-- Body Measurements Section -->
+        <!-- Body Measurements -->
         <section class="body-measurements">
           <div class="measurement">
             <img
@@ -113,7 +113,6 @@
         </a>
       </nav>
     </div>
-    <!-- Closing the container div -->
 
     <script>
       document.querySelector(".nav-item").focus();
@@ -137,7 +136,7 @@
             document.querySelector(".weight_value").textContent =
               data.weight.toFixed(1);
 
-            // 신체 사이즈 업데이트
+            // 신체 측정치 업데이트
             document.querySelector(".values.chest").textContent =
               data.chest.toFixed(1);
             document.querySelector(".values.waist").textContent =

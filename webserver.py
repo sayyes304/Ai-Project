@@ -23,7 +23,6 @@ from dotenv import load_dotenv
 app = FastAPI()
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
-# Directory to save JSON files
 json_dir = "./json"
 os.makedirs(json_dir, exist_ok=True)
 
@@ -39,15 +38,12 @@ def read_user_input():
 def read_camera():
     return FileResponse('camera.html')
 
-# Directory to save uploaded photos
 photo_dir = "./photos"
 os.makedirs(photo_dir, exist_ok=True)
 
-# MySQL connection setup
-# Load .env file
+# MySQL 
 load_dotenv()
 
-# MySQL connection setup
 db_config = {
     "host": os.getenv("DB_HOST"),
     "user": os.getenv("DB_USER"),
@@ -74,7 +70,6 @@ def create_user_measure_table():
     cursor.close()
     conn.close()
 
-# 테이블 생성 호출
 create_user_measure_table()
 
 from fastapi import Body
@@ -87,7 +82,6 @@ async def save_user_data(
     # BMI 계산
     bmi = weight / ((height / 100) ** 2)
 
-        # 데이터 처리 로직 유지
     conn = get_db_connection()
     cursor = conn.cursor()
     cursor.execute("""
@@ -104,12 +98,11 @@ async def save_user_data(
 @app.post("/upload-photo")
 async def upload_photo(photo: UploadFile = File(...)):
     try:
-        # 사진 저장 경로 설정
+        # 사진 저장 경로
         photo_path = os.path.join(photo_dir, "front.jpg")
         with open(photo_path, "wb") as buffer:
             shutil.copyfileobj(photo.file, buffer)
 
-        # 파일 저장 성공 메시지 반환
         return JSONResponse(content={"message": "Photo uploaded successfully!", "photo_path": photo_path})
     except Exception as e:
         logging.error(f"Error uploading photo: {str(e)}")
@@ -118,16 +111,14 @@ async def upload_photo(photo: UploadFile = File(...)):
 @app.post("/process-saved-photo")
 def process_saved_photo():
     try:
-        # 사진과 사용자 데이터 처리 (기존 코드 생략)
         photo_path = os.path.join(photo_dir, "front.jpg")
         if not os.path.exists(photo_path):
             return JSONResponse(content={"message": "Photo not found in photos directory."}, status_code=404)
 
         # 사진 로드 및 전처리
-        image = Image.open(photo_path).resize((256, 256))  # 모델 입력 크기로 조정
-        image_array = np.expand_dims(image, axis=0)  # 배치 차원 추가
+        image = Image.open(photo_path).resize((256, 256))  
+        image_array = np.expand_dims(image, axis=0) 
 
-        # 사용자 데이터 로드
         conn = get_db_connection()
         cursor = conn.cursor(dictionary=True)
         cursor.execute("SELECT height, bmi FROM user_data WHERE id = 1")
@@ -150,7 +141,7 @@ def process_saved_photo():
         if result is None or len(result) == 0:
             return JSONResponse(content={"message": "Model failed to return a result."}, status_code=500)
 
-        # 결과에서 특정 값만 선택하고 소수점 2자리로 변환
+        # 결과 -> 소수점 2자리
         chest = round(float(result[0][8]), 1)
         waist = round(float(result[0][9]), 1)
         hip = round(float(result[0][11]), 1)
@@ -172,7 +163,7 @@ def process_saved_photo():
     except Exception as e:
         return JSONResponse(content={"message": f"Error: {str(e)}"}, status_code=500)
 
-# 로깅 설정
+# 로깅
 logging.basicConfig(
     filename="debug.log",
     level=logging.DEBUG,

@@ -6,7 +6,6 @@
   font-style: normal;
 }
 
-/* General Styles */
 body {
   font-family: "Pretendard-Regular";
   /* background-color: #f8f9fd; */
@@ -23,7 +22,7 @@ body {
 }
 
 .header {
-  position: relative; /* 자식 요소를 절대 위치시킬 수 있도록 설정 */
+  position: relative;
   text-align: center;
   color: #598ef8;
   font-size: 18px;
@@ -31,17 +30,16 @@ body {
 }
 
 .backicon {
-  position: absolute; /* 헤더 내에서 절대 위치 */
-  left: 10px; /* 왼쪽으로부터 10px 위치에 배치 */
+  position: absolute;
+  left: 10px;
   top: 50%;
-  transform: translateY(-50%); /* 아이콘을 수직 가운데 정렬 */
+  transform: translateY(-50%);
 }
 
 .title {
   margin: 0;
 }
 
-/* Description Styles */
 .description {
   text-align: left;
 }
@@ -74,7 +72,6 @@ p {
   margin-top: 1.5rem;
 }
 
-/* Input Group Styles */
 .input-group {
   margin-bottom: 1.5rem;
   text-align: left;
@@ -129,8 +126,6 @@ p {
   cursor: pointer;
 }
 
-/* Blue Button */
-
 .custom-btn {
   /* width: 150px; */
   height: 50px;
@@ -150,7 +145,6 @@ p {
   outline: none;
 }
 
-/* 4 */
 .btn-4 {
   background-color: #598ef8;
   background-image: linear-gradient(315deg, #598ef8 0%, #89a8f3 74%);
@@ -225,7 +219,7 @@ p {
   width: 100%;
 }
 
-/* Bottom Navigation Bar Styles */
+/* Bottom Navigation Bar */
 nav {
   display: flex;
   justify-content: space-around;
